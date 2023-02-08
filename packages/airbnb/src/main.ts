@@ -3,15 +3,18 @@ import { chromium } from 'playwright'
 //create an empty list of listing results
 var listings: string [] = []
 
-async () => {
-    const browser = await chromium.launch();
+export async function screenScrape () {
+  const browser = await chromium.launch({headless: false});
   const page = await browser.newPage();
   //go to airbnb site
   await page.goto('https://www.airbnb.com/');
 
   //close a popup if it happens to come up
-  page.getByRole('button', { name: 'Close' }).click();
-
+  try {
+    await page.getByRole('button', { name: 'Close' }).click({timeout: 1000});
+  } catch (e) {
+    console.log('No popup to close')
+  }
   //ask for search area
   //const searchArea = 
 
@@ -69,17 +72,21 @@ var allListingsInfo: string [] = []
 async function goToPage (id: string) {
   const url = 'https://www.airbnb.com/rooms/' + id;
   //const listingPagePromise = context.waitForEvent('page');
-  const browser = await chromium.launch();
+  const browser2 = await chromium.launch({headless: false});
   const newContext = await browser.newContext();
   const listingPage = await newContext.newPage();
   await listingPage.goto(url);
   for (let i=0; i<10; i++){
-    listingPage.getByRole('button', { name: 'Close' }).click();
+    try {
+      await listingPage.getByRole('button', { name: 'Close' }).click({timeout: 1000});
+    } catch (e) {
+      console.log('No popup to close')
+    }
     await listingPage.waitForLoadState('networkidle');
     scores = await listingPage.locator('._4oybiu').allInnerTexts();
     const locationRaw = await (await listingPage.locator('._9xiloll').innerText());
     location = '"' + locationRaw + '"';
-    const titleRaw = await listingPage.locator('h1').innerText();
+    const titleRaw = await listingPage.locator('._fecoyn4').innerText();
     title = '"' + titleRaw + '"'
     listingInfo = `${id}, ${title} , ${location}`
     for (const x of scores){
@@ -88,11 +95,12 @@ async function goToPage (id: string) {
     console.log(i);
     if (listingInfo != undefined){
       allListingsInfo.push(listingInfo)
+      await newContext.close();
       break;
     };
   };
   console.log(allListingsInfo);
-  await newContext.close();
+  // await listingPage.close();
 }
 
 // just for testing a single page
@@ -111,9 +119,11 @@ for (let k = 0; k<10; k++){
 };
 
 // Add back for iterating over all the pages
-// listings.forEach(listing => {
+// listings.forEach(listing => async function () {
 //   const id = listing.substring(6);
-//   goToPage(id);
+//   await goToPage(id);
 // });
 
+await browser.close();
+process.exit();
 };

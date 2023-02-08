@@ -16,7 +16,7 @@
                 "tsx"
             ],
             "sourceMaps": true,
-            "program": "${workspaceFolder}/apps/pw1/src/main.ts",
+            "program": "${workspaceFolder}/packages/airbnb/src/index.ts",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
