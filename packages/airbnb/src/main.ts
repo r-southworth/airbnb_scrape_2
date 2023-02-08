@@ -72,21 +72,21 @@ var allListingsInfo: string [] = []
 async function goToPage (id: string) {
   const url = 'https://www.airbnb.com/rooms/' + id;
   //const listingPagePromise = context.waitForEvent('page');
-  const browser2 = await chromium.launch({headless: false});
-  const newContext = await browser.newContext();
-  const listingPage = await newContext.newPage();
-  await listingPage.goto(url);
+  // const browser2 = await chromium.launch({headless: false});
+  // const newContext = await browser.newContext();
+  // const listingPage = await newContext.newPage();
+  await page.goto(url);
   for (let i=0; i<10; i++){
     try {
-      await listingPage.getByRole('button', { name: 'Close' }).click({timeout: 1000});
+      await page.getByRole('button', { name: 'Close' }).click({timeout: 1000});
     } catch (e) {
       console.log('No popup to close')
     }
-    await listingPage.waitForLoadState('networkidle');
-    scores = await listingPage.locator('._4oybiu').allInnerTexts();
-    const locationRaw = await (await listingPage.locator('._9xiloll').innerText());
+    await page.waitForLoadState('networkidle');
+    scores = await page.locator('._4oybiu').allInnerTexts();
+    const locationRaw = await (await page.locator('._9xiloll').innerText());
     location = '"' + locationRaw + '"';
-    const titleRaw = await listingPage.locator('._fecoyn4').innerText();
+    const titleRaw = await page.locator('._fecoyn4').innerText();
     title = '"' + titleRaw + '"'
     listingInfo = `${id}, ${title} , ${location}`
     for (const x of scores){
@@ -95,7 +95,7 @@ async function goToPage (id: string) {
     console.log(i);
     if (listingInfo != undefined){
       allListingsInfo.push(listingInfo)
-      await newContext.close();
+      await page.close();
       break;
     };
   };
